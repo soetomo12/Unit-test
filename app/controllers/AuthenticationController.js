@@ -87,7 +87,9 @@ class AuthenticationController extends ApplicationController {
       const name = req.body.name;
       const email = req.body.email.toLowerCase();
       const password = req.body.password;
-      let existingUser = await this.userModel.findOne({ where: { email, }, });
+      let existingUser = await this.userModel.findOne({
+        where: { email },
+      });
 
       if (!!existingUser) {
         const err = new EmailAlreadyTakenError(email);
@@ -96,7 +98,7 @@ class AuthenticationController extends ApplicationController {
       }
 
       const role = await this.roleModel.findOne({
-        where: { name: this.accessControl.CUSTOMER }
+        where: { name: this.accessControl.CUSTOMER },
       });
 
       const user = await this.userModel.create({
@@ -104,13 +106,13 @@ class AuthenticationController extends ApplicationController {
         email,
         encryptedPassword: this.encryptPassword(password),
         roleId: role.id,
-      }) 
+      });
 
       const accessToken = this.createTokenFromUser(user, role);
 
       res.status(201).json({
         accessToken,
-      })
+      });
     }
 
     catch(err) {
